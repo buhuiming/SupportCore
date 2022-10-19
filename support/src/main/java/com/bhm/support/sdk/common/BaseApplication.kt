@@ -13,7 +13,7 @@ import timber.log.Timber
  * @description: Application基类
  * @date :2022/6/28 14:14
  */
-abstract class BaseApplication : Application(){
+open class BaseApplication : Application(){
 
     companion object {
         @SuppressLint("StaticFieldLeak")
