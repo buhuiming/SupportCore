@@ -22,7 +22,7 @@ class SPUtil(context: Context) {
         }
     }
 
-    private val sp = context.getSharedPreferences("MicroPortDemoEEGD", Context.MODE_PRIVATE)
+    private val sp = context.getSharedPreferences(context.packageName, Context.MODE_PRIVATE)
     private val editor = sp.edit()
 
     fun getString(key: String): String? = sp.getString(key, null)
