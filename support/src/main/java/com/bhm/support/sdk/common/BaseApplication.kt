@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Context
 import androidx.multidex.MultiDex
 import com.bhm.support.sdk.constants.DEBUGGER
-import com.bhm.support.sdk.utils.NotificationUtil
 import timber.log.Timber
 
 /**

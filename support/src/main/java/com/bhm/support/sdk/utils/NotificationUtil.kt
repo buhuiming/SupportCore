@@ -10,6 +10,7 @@ import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.text.TextUtils
 import androidx.core.app.NotificationCompat
 
 
@@ -18,9 +19,6 @@ import androidx.core.app.NotificationCompat
  */
 class NotificationUtil private constructor(
     context: Context,
-    smallIconId: Int,
-    largeIconId: Int,
-    channels: Map<String, String>
 ) : ContextWrapper(context) {
 
     private var largeIcon: Bitmap? = null
@@ -35,9 +33,9 @@ class NotificationUtil private constructor(
         private var notificationUtil: NotificationUtil? = null
 
         @Synchronized
-        fun getInstance(context: Context, smallIconId: Int, largeIconId: Int, channels: Map<String, String>): NotificationUtil? {
+        fun getInstance(context: Context): NotificationUtil? {
             if (notificationUtil == null) {
-                notificationUtil = NotificationUtil(context, smallIconId, largeIconId, channels)
+                notificationUtil = NotificationUtil(context)
             }
             return notificationUtil
         }
@@ -51,7 +49,7 @@ class NotificationUtil private constructor(
             return field
         }
 
-    init {
+    fun init(smallIconId: Int, largeIconId: Int, channels: Map<String, String>?) {
         setIcon(smallIconId, largeIconId)
         createChannels(channels)
     }
@@ -63,10 +61,10 @@ class NotificationUtil private constructor(
     }
 
     //设置消息渠道
-    private fun createChannels(channels: Map<String, String>) {
+    private fun createChannels(channels: Map<String, String>?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (channels.isEmpty()) {
-                createNotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL)
+            createNotificationChannel(DEFAULT_CHANNEL_ID, DEFAULT_CHANNEL)
+            if (channels == null || channels.isEmpty()) {
                 return
             }
             channels.forEach {
@@ -90,9 +88,9 @@ class NotificationUtil private constructor(
     /**
      * 获取默认通道的 NotificationCompat.Builder
      */
-    private fun getNotificationBuilderByChannel(vararg channel: String): NotificationCompat.Builder {
+    private fun getNotificationBuilderByChannel(channel: String): NotificationCompat.Builder {
         val builder: NotificationCompat.Builder
-        val channelId = if (channel.isEmpty()) DEFAULT_CHANNEL_ID else channel[0]
+        val channelId = if (TextUtils.isEmpty(channel)) DEFAULT_CHANNEL_ID else channel
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = NotificationCompat.Builder(applicationContext, channelId)
         } else {
@@ -114,9 +112,10 @@ class NotificationUtil private constructor(
     private fun buildNotificationText(
         title: String,
         body: String,
-        pendingIntent: PendingIntent
+        pendingIntent: PendingIntent,
+        channelId: String
     ): NotificationCompat.Builder {
-        return getNotificationBuilderByChannel()
+        return getNotificationBuilderByChannel(channelId)
             .setAutoCancel(true)
             .setSmallIcon(smallIcon)
             .setLargeIcon(largeIcon)
@@ -137,9 +136,10 @@ class NotificationUtil private constructor(
         title: String,
         body: String,
         pendingIntent: PendingIntent,
+        channelId: String,
         vararg actions: NotificationCompat.Action
     ): NotificationCompat.Builder {
-        val builder = getNotificationBuilderByChannel()
+        val builder = getNotificationBuilderByChannel(channelId)
             .setAutoCancel(true)
             .setSmallIcon(smallIcon)
             .setLargeIcon(largeIcon)
@@ -167,9 +167,10 @@ class NotificationUtil private constructor(
         title: String,
         body: String,
         imgBitmap: Bitmap,
-        pendingIntent: PendingIntent
+        pendingIntent: PendingIntent,
+        channelId: String
     ): NotificationCompat.Builder {
-        return getNotificationBuilderByChannel()
+        return getNotificationBuilderByChannel(channelId)
             .setAutoCancel(true)
             .setSmallIcon(smallIcon)
             .setLargeIcon(largeIcon)
@@ -193,9 +194,10 @@ class NotificationUtil private constructor(
         body: String,
         imgBitmap: Bitmap,
         pendingIntent: PendingIntent,
+        channelId: String,
         vararg actions: NotificationCompat.Action
     ): NotificationCompat.Builder {
-        val builder = getNotificationBuilderByChannel()
+        val builder = getNotificationBuilderByChannel(channelId)
             .setAutoCancel(true)
             .setSmallIcon(smallIcon)
             .setLargeIcon(largeIcon)
@@ -220,14 +222,16 @@ class NotificationUtil private constructor(
         title: String,
         body: String,
         pendingIntent: PendingIntent,
+        channelId: String,
         vararg actions: NotificationCompat.Action
     ): NotificationCompat.Builder {
         return if (actions.isNotEmpty()) buildNotificationTextAction(
             title,
             body,
             pendingIntent,
+            channelId = channelId,
             *actions
-        ) else buildNotificationText(title, body, pendingIntent)
+        ) else buildNotificationText(title, body, pendingIntent, channelId)
     }
 
     fun buildNotificationImage(
@@ -235,6 +239,7 @@ class NotificationUtil private constructor(
         body: String,
         imgBitmap: Bitmap,
         pendingIntent: PendingIntent,
+        channelId: String,
         vararg actions: NotificationCompat.Action
     ): NotificationCompat.Builder {
         return if (actions.isNotEmpty()) buildNotificationImageAction(
@@ -242,8 +247,9 @@ class NotificationUtil private constructor(
             body,
             imgBitmap,
             pendingIntent,
+            channelId,
             *actions
-        ) else buildNotificationImage(title, body, imgBitmap, pendingIntent)
+        ) else buildNotificationImage(title, body, imgBitmap, pendingIntent, channelId)
     }
 
     fun notify(id: Int, notification: NotificationCompat.Builder) {
