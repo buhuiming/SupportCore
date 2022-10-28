@@ -1,10 +1,11 @@
 package com.bhm.supportcore
 
+import android.content.Intent
 import com.bhm.support.sdk.common.BaseVBActivity
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.supportcore.databinding.ActivityMainBinding
 
-class MainActivity : BaseVBActivity<MainVM, ActivityMainBinding>() {
+class TestActivity : BaseVBActivity<MainVM, ActivityMainBinding>() {
 
     override fun createViewModel() = MainVM(application)
 
@@ -17,6 +18,5 @@ class MainActivity : BaseVBActivity<MainVM, ActivityMainBinding>() {
         super.initEvent()
         viewBinding.btnOpen.setOnClickListener {
         }
-
     }
 }

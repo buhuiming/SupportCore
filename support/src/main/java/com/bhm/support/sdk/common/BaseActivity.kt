@@ -17,8 +17,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import com.bhm.support.sdk.core.AppTheme
 import com.bhm.support.sdk.core.WeakHandler
 import com.bhm.support.sdk.entity.MessageEvent
-import com.bhm.support.sdk.interfaces.ARCallBack
-import com.bhm.support.sdk.interfaces.PermissionCallBack
 import com.bhm.support.sdk.utils.ActivityUtil
 import com.noober.background.BackgroundLibrary
 import org.greenrobot.eventbus.EventBus
@@ -39,9 +37,11 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity(), Handler.C
 
     private var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
 
-    private var arCallBack: ARCallBack? = null
+    private var arCallback: ((resultCode: Int, resultIntent: Intent?) -> Unit)? = null
 
-    private lateinit var permissionCallBack: PermissionCallBack
+    private var permissionAgree: (() -> Unit)? = null
+
+    private var permissionRefuse: ((refusePermissions: ArrayList<String>) -> Unit)? = null
 
     lateinit var mainHandler: WeakHandler
 
@@ -68,22 +68,28 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity(), Handler.C
         viewModel = createViewModel(this, createViewModel())
         activityLauncher = registerForActivityResult(StartActivityForResult()) { result ->
             if (result != null) {
-                arCallBack?.call(result.resultCode, result.data)
+                arCallback?.let {
+                    it(result.resultCode, result.data)
+                }
             }
         }
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()
         ) {
-            val resPermission: ArrayList<String> = ArrayList()
+            val refusePermission: ArrayList<String> = ArrayList()
             it.keys.forEach { res ->
                 if (it[res] == false) {
-                    resPermission.add(res)
+                    refusePermission.add(res)
                 }
             }
 
-            if (resPermission.size > 0) {
-                permissionCallBack.refuse(resPermission)
+            if (refusePermission.size > 0) {
+                permissionRefuse?.let {
+                    it(refusePermission)
+                }
             } else {
-                permissionCallBack.agree()
+                permissionAgree?.let {
+                    it()
+                }
             }
         }
         mainHandler = WeakHandler(Looper.getMainLooper(), this)
@@ -105,18 +111,15 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity(), Handler.C
         return ViewModelProvider(owner).get(viewModel.javaClass)
     }
 
-    fun startActivity(intent: Intent, arCallBack: ARCallBack) {
-        this.arCallBack = arCallBack
+    fun startActivity(intent: Intent, arCallback: (resultCode: Int, resultIntent: Intent?) -> Unit) {
+        this.arCallback = arCallback
         activityLauncher?.launch(intent)
     }
 
-    fun requestPermission(permissions: Array<String>, callBack: PermissionCallBack) {
-        permissionCallBack = callBack
+    fun requestPermission(permissions: Array<String>, agree: () -> Unit, refuse: (refusePermissions: ArrayList<String>) -> Unit) {
+        this.permissionAgree = agree
+        this.permissionRefuse = refuse
         var allAgree = true
-//        permissions.forEach { permission ->
-//            allAgree = ContextCompat.checkSelfPermission(this, permission) !=
-//                    PackageManager.PERMISSION_GRANTED
-//        }
         for (permission in permissions){
             if( ContextCompat.checkSelfPermission(this, permission) !=
                 PackageManager.PERMISSION_GRANTED){
@@ -125,7 +128,9 @@ abstract class BaseActivity<VM : BaseViewModel> : AppCompatActivity(), Handler.C
             }
         }
         if (allAgree) {
-            permissionCallBack.agree()
+            permissionAgree?.let {
+                it()
+            }
             return
         }
         permissionLauncher?.launch(permissions)
