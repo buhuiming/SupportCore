@@ -19,17 +19,17 @@ ext {
 
     jvmTarget = '1.8'
 
-    coreKtxVersion = '1.7.0'
-    appcompatVersion = '1.4.2'
-    materialVersion = '1.6.1'
+    coreKtxVersion = '1.8.0'
+    appcompatVersion = '1.5.0'
+    materialVersion = '1.7.0'
     constraintlayoutVersion = '2.1.1'
     navigationKtxVersion = '2.3.5'
     multidexVersion = '2.0.1'
     lifecycleExtensionsVersion = '2.2.0'
-    lifecycleVersion = '2.3.1'
+    lifecycleVersion = '2.5.0'
 
     retrofitVersion = '2.9.0'
-    gsonVersion = '2.8.6'
+    gsonVersion = '2.8.9'
     interceptorVersion = '3.11.0'
 
     timberLog = '5.0.1'

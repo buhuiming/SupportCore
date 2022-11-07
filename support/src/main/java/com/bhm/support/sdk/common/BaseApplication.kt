@@ -23,7 +23,7 @@ open class BaseApplication : Application(){
     override fun onCreate() {
         super.onCreate()
         context = this
-        if (DEBUGGER) {
+        if (isDebugger()) {
             Timber.plant(Timber.DebugTree())
         }
     }
@@ -32,4 +32,6 @@ open class BaseApplication : Application(){
         super.attachBaseContext(base)
         MultiDex.install(base)
     }
+
+    open fun isDebugger() = DEBUGGER
 }

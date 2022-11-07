@@ -36,10 +36,6 @@ android {
 
 dependencies {
 
-    implementation "androidx.core:core-ktx:$rootProject.coreKtxVersion"
-    implementation "androidx.appcompat:appcompat:$rootProject.appcompatVersion"
-    implementation "com.google.android.material:material:$rootProject.materialVersion"
-    implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintlayoutVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$rootProject.navigationKtxVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$rootProject.navigationKtxVersion"
     testImplementation 'junit:junit:4.13.2'
