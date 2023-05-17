@@ -10,7 +10,7 @@
         }
 
         dependencies {
-            implementation 'com.github.buhuiming:SupportCore:1.0.0-beta01'
+            implementation 'com.github.buhuiming:SupportCore:1.0.1-beta01'
         }
 
 #### 1、说明
