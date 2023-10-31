@@ -81,8 +81,16 @@ afterEvaluate {
                 // 这里头是artifacts的配置信息，不填会采用默认的
                 groupId = 'com.github.buhuiming'
                 artifactId = 'SupportCore'
-                version = '1.0.4'
+                version = '1.0.6'
+
+                from components.release
+                artifact androidSourcesJar //打包源码，去除这行打的包将看不到源码
             }
         }
     }
+}
+// 用于打包源代码的任务
+tasks.register('androidSourcesJar', Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
 }
